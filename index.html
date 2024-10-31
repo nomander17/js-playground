@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS Playground</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            flex-direction: row;
+            height: 100vh;
+            font-family: 'JetBrains Mono', monospace;
+            overflow: hidden;
+        }
+
+        #code-area,
+        #console {
+            /* height: 100vh; */
+            width: 50vw;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+        }
+
+        #code-textarea {
+            height: 100%;
+            width: 100%;
+            resize: none;
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        #code-textarea:focus {
+            border-color: #4a90e2;
+            box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+        }
+
+        #console {
+            background-color: #f1f1f1;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+            padding: 20px;
+            margin: 20px;
+        }
+
+        #console-body {
+            overflow-y: scroll;
+        }
+
+        #console-header {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #4a90e2;
+            border-bottom: 2px solid #4a90e2;
+            padding-bottom: 5px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        #console-header-text {
+            align-content: center;
+        }
+
+        #run-button {
+            background-color: #ffffff;
+            width: fit-content;
+            border-radius: 24px;
+            color: #3c4043;
+            cursor: pointer;
+            padding: 5px 24px;
+            font-family: "JetBrains Mono", monospace;
+            border-style: none;
+            margin-bottom: 2px;
+        }
+
+        #run-button:hover {
+            background: #F6F9FE;
+            color: #174ea6;
+        }
+
+        @media screen and (max-width: 600px) {
+            body {
+                flex-direction: column;
+            }
+
+            #code-area,
+            #console {
+                height: 50dvh;
+                width: 100%;
+                border: none;
+                margin: 0;
+                border-radius: 0;
+            }
+
+            #keyboard-shortcut {
+                display: none;
+            }
+        }
+
+        #console-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #console-body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        #console-body::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        #console-body::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        #console-body {
+            scrollbar-width: thin;
+            scrollbar-color: #888 #f1f1f1;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="code-area">
+        <textarea id="code-textarea" placeholder="Write your JavaScript code here..."></textarea>
+    </div>
+    <div id="console">
+        <div id="console-header">
+            <div id="console-header-text">Console Output <span id="keyboard-shortcut">Press CTRL ENTER to run.</span>
+            </div>
+            <button id="run-button" onclick="runCode()">RUN</button>
+        </div>
+        <div id="console-body"></div>
+    </div>
+    <script>
+        async function runCode() {
+            const code = document.getElementById("code-textarea").value;
+            const response = await fetch("/run", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ code: code }),
+            });
+            const data = await response.json();
+            console.log(JSON.stringify(data, null, 2));
+            document.getElementById("console-body").innerHTML = data.console.join('<br>');
+        }
+
+        window.addEventListener("keydown", async (event) => {
+            if (event.ctrlKey && event.key === "Enter") {
+                await runCode();
+            }
+        })
+    </script>
+</body>
+
+</html>
